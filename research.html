@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Research · Sajad Ahmadinabi</title>
+  <meta name="description" content="Research by Sajad Ahmadinabi.">
+  <meta name="theme-color" content="#07090d">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Research · Sajad Ahmadinabi">
+  <meta property="og:url" content="https://sajadahmadi14.github.io/research.html">
+  <script>
+    (function () {
+      var root = document.documentElement;
+      root.classList.add('js');
+      try { var t = localStorage.getItem('theme'); if (t) root.dataset.theme = t; } catch (e) {}
+    })();
+  </script>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
+</head>
+<body id="top">
+  <div class="bg-grid" aria-hidden="true"></div>
+
+  <header class="nav-wrap">
+    <nav class="nav" aria-label="Main">
+      <a href="index.html" class="logo" aria-label="Home">
+        <span class="logo-mark">SA</span>
+        <span class="logo-text">Sajad Ahmadinabi</span>
+      </a>
+      <div class="nav-links" id="nav-links">
+        <a href="index.html">Home</a>
+        <a href="research.html" aria-current="page">Research</a>
+        <a href="publications.html">Publications</a>
+        <a href="news.html">News</a>
+        <a href="contact.html">Contact</a>
+      </div>
+      <div class="nav-actions">
+        <button class="icon-btn" id="theme-toggle" type="button" aria-label="Switch between light and dark mode">
+          <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><path d="M12 1.5v2.5M12 20v2.5M4.2 4.2l1.8 1.8M18 18l1.8 1.8M1.5 12H4M20 12h2.5M4.2 19.8 6 18M18 6l1.8-1.8"/></svg>
+          <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+        </button>
+        <a class="btn btn-small" href="cv.pdf">CV</a>
+        <button class="icon-btn menu-btn" id="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="nav-links">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+        </button>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <header class="page-hero">
+      <canvas id="network" aria-hidden="true"></canvas>
+      <div class="hero-glow glow-a" aria-hidden="true"></div>
+      <div class="container">
+        <span class="section-num reveal">01 / Research</span>
+        <h1 class="page-title reveal" style="--d:1">What I <em>work on</em></h1>
+        <p class="page-sub reveal" style="--d:2"><span class="todo">One or two lines that sum up your research program: the big question you're chasing and why it matters.</span></p>
+      </div>
+    </header>
+
+    <section class="section section-tight" aria-label="Research areas">
+      <div class="container">
+        <div class="cards">
+          <article class="card reveal">
+            <div class="card-icon">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4"/></svg>
+            </div>
+            <h3 class="todo">Research area one</h3>
+            <p class="todo">One or two sentences on what you study here, how you approach it, and why it matters.</p>
+            <ul class="tags"><li>keyword</li><li>keyword</li><li>keyword</li></ul>
+          </article>
+
+          <article class="card reveal" style="--d:1">
+            <div class="card-icon">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+            </div>
+            <h3 class="todo">Research area two</h3>
+            <p class="todo">One or two sentences on what you study here, how you approach it, and why it matters.</p>
+            <ul class="tags"><li>keyword</li><li>keyword</li><li>keyword</li></ul>
+          </article>
+
+          <article class="card reveal" style="--d:2">
+            <div class="card-icon">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+            </div>
+            <h3 class="todo">Research area three</h3>
+            <p class="todo">One or two sentences on what you study here, how you approach it, and why it matters.</p>
+            <ul class="tags"><li>keyword</li><li>keyword</li><li>keyword</li></ul>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="tools-title">
+      <div class="container">
+        <div class="section-head reveal">
+          <div>
+            <span class="section-num">Toolkit</span>
+            <h2 id="tools-title">Methods <em>&amp; tools</em></h2>
+          </div>
+          <p class="section-sub">The languages, methods and platforms I use most.</p>
+        </div>
+        <!-- Replace each item with a real tool or method -->
+        <ul class="tags tags-lg reveal">
+          <li class="todo">Programming language</li>
+          <li class="todo">Framework or library</li>
+          <li class="todo">Statistical method</li>
+          <li class="todo">Machine-learning method</li>
+          <li class="todo">Data type or assay</li>
+          <li class="todo">Software or platform</li>
+          <li class="todo">Lab or field technique</li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-inner">
+      <span>© 2026 Sajad Ahmadinabi</span>
+      <nav class="footer-links" aria-label="Footer">
+        <a href="research.html">Research</a>
+        <a href="publications.html">Publications</a>
+        <a href="news.html">News</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+      <a href="#top" class="text-link">Back to top
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"/></svg>
+      </a>
+    </div>
+  </footer>
+</body>
+</html>

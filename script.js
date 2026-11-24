@@ -1,8 +1,9 @@
 (() => {
   const root = document.documentElement;
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const clamp01 = (v) => Math.min(1, Math.max(0, v));
 
-  /* ---------- Animated network in the hero ---------- */
+  /* ---------- Animated network behind page headers ---------- */
   const network = (() => {
     const canvas = document.getElementById('network');
     if (!canvas || !canvas.getContext) return null;
@@ -27,19 +28,6 @@
         vy: (Math.random() - 0.5) * 0.35,
         r: Math.random() * 1.6 + 0.7,
       }));
-    };
-
-    const resize = () => {
-      const rect = canvas.getBoundingClientRect();
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      const widthChanged = Math.abs(rect.width - w) > 1;
-      w = rect.width;
-      h = rect.height;
-      canvas.width = Math.round(w * dpr);
-      canvas.height = Math.round(h * dpr);
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      if (widthChanged || !nodes.length) seed();
-      draw();
     };
 
     const draw = () => {
@@ -74,6 +62,19 @@
       }
     };
 
+    const resize = () => {
+      const rect = canvas.getBoundingClientRect();
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const widthChanged = Math.abs(rect.width - w) > 1;
+      w = rect.width;
+      h = rect.height;
+      canvas.width = Math.round(w * dpr);
+      canvas.height = Math.round(h * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      if (widthChanged || !nodes.length) seed();
+      draw();
+    };
+
     const step = () => {
       for (const n of nodes) {
         n.x += n.vx;
@@ -106,7 +107,7 @@
     });
 
     if (!reduceMotion) {
-      // Only animate while the hero is on screen
+      // Only animate while the header is on screen
       new IntersectionObserver(([entry]) => {
         visible = entry.isIntersecting;
         if (visible && !raf) raf = requestAnimationFrame(step);
@@ -114,6 +115,128 @@
     }
 
     return { refreshColor() { readColor(); draw(); } };
+  })();
+
+  /* ---------- Rocket journey: scroll moves the rocket from Earth to the Moon ---------- */
+  (() => {
+    const section = document.querySelector('.journey');
+    if (!section) return;
+
+    const path = section.querySelector('#flight-path');
+    const trail = section.querySelector('#flight-trail');
+    const rocket = section.querySelector('#rocket');
+    const markerGroup = section.querySelector('#markers');
+    const stars = section.querySelector('.stars');
+    const items = [...section.querySelectorAll('.mission-log li')];
+    const distEl = section.querySelector('[data-distance]');
+    const pctEl = section.querySelector('[data-progress]');
+    const SVG_NS = 'http://www.w3.org/2000/svg';
+    const MOON_KM = 384400;
+    const FLIP_START = 0.84;   // rocket starts turning around for a tail-first landing
+    const FLIP_END = 0.97;
+    const LANDED = 0.985;
+
+    const len = path.getTotalLength();
+    trail.style.strokeDasharray = `${len}`;
+    trail.style.strokeDashoffset = `${len}`;
+
+    // Each mission-log item says where along the flight (0 to 1) it happens
+    const stops = items.map((li) => clamp01(parseFloat(li.dataset.at) || 0));
+
+    // Numbered markers on the path for the in-between milestones
+    const markers = stops.map((at, i) => {
+      if (i === 0 || i === stops.length - 1) return null;
+      const p = path.getPointAtLength(at * len);
+      const g = document.createElementNS(SVG_NS, 'g');
+      g.setAttribute('class', 'marker');
+      g.setAttribute('transform', `translate(${p.x} ${p.y})`);
+      const c = document.createElementNS(SVG_NS, 'circle');
+      c.setAttribute('r', '7');
+      const t = document.createElementNS(SVG_NS, 'text');
+      t.setAttribute('x', '-38');
+      t.setAttribute('y', '5');
+      t.textContent = String(i).padStart(2, '0');
+      g.append(c, t);
+      markerGroup.appendChild(g);
+      return g;
+    });
+
+    const angleAt = (l) => {
+      const a = path.getPointAtLength(Math.max(0, l - 0.5));
+      const b = path.getPointAtLength(Math.min(len, l + 0.5));
+      return (Math.atan2(b.y - a.y, b.x - a.x) * 180) / Math.PI;
+    };
+    const smooth = (t) => t * t * (3 - 2 * t);
+
+    // Star field (redrawn only when the width changes)
+    let starWidth = 0;
+    const drawStars = () => {
+      if (!stars) return;
+      const w = stars.offsetWidth;
+      const h = stars.offsetHeight;
+      if (Math.abs(w - starWidth) < 2 && stars.width) return;
+      starWidth = w;
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      stars.width = Math.round(w * dpr);
+      stars.height = Math.round(h * dpr);
+      const ctx = stars.getContext('2d');
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      const count = Math.round((w * h) / 2400);
+      for (let i = 0; i < count; i++) {
+        const big = Math.random() < 0.07;
+        ctx.globalAlpha = Math.random() * 0.6 + (big ? 0.4 : 0.2);
+        ctx.fillStyle = Math.random() < 0.15 ? '#c7d2fe' : '#ffffff';
+        ctx.beginPath();
+        ctx.arc(Math.random() * w, Math.random() * h, big ? Math.random() * 1.1 + 1 : Math.random() * 0.8 + 0.25, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    };
+
+    let ticking = false;
+    const update = () => {
+      ticking = false;
+      const total = section.offsetHeight - window.innerHeight;
+      const p = clamp01(-section.getBoundingClientRect().top / Math.max(1, total));
+      const l = p * len;
+      const pt = path.getPointAtLength(l);
+
+      // Point along the flight path, then flip to land tail-first (upright)
+      let angle = angleAt(l);
+      if (p > FLIP_START) {
+        angle += (-90 - angle) * smooth(clamp01((p - FLIP_START) / (FLIP_END - FLIP_START)));
+      }
+      rocket.setAttribute('transform', `translate(${pt.x.toFixed(2)} ${pt.y.toFixed(2)}) rotate(${(angle + 90).toFixed(2)})`);
+      trail.style.strokeDashoffset = `${len - l}`;
+
+      const landed = p >= LANDED;
+      section.classList.toggle('launched', p > 0.004);
+      section.classList.toggle('flying', p > 0.004 && !landed);
+      section.classList.toggle('landed', landed);
+
+      let current = 0;
+      stops.forEach((at, i) => { if (p >= at - 0.0005) current = i; });
+      items.forEach((li, i) => {
+        li.classList.toggle('done', i < current);
+        li.classList.toggle('active', i === current);
+      });
+      markers.forEach((m, i) => m && m.classList.toggle('passed', p >= stops[i]));
+
+      if (distEl) distEl.textContent = `${Math.round(MOON_KM * (landed ? 0 : 1 - p)).toLocaleString('en-US')} km`;
+      if (pctEl) pctEl.textContent = landed ? 'Landed' : `${Math.round(p * 100)}%`;
+      if (stars) stars.style.transform = `translate3d(0, ${(-p * 22).toFixed(2)}%, 0)`;
+    };
+
+    const requestUpdate = () => {
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(update);
+      }
+    };
+
+    drawStars();
+    update();
+    window.addEventListener('scroll', requestUpdate, { passive: true });
+    window.addEventListener('resize', () => { drawStars(); requestUpdate(); });
   })();
 
   /* ---------- Light / dark toggle ---------- */
@@ -134,26 +257,12 @@
     menuBtn?.setAttribute('aria-expanded', String(open));
   };
   menuBtn?.addEventListener('click', () => setMenu(!nav.classList.contains('open')));
-  nav.querySelectorAll('.nav-links a').forEach((a) => a.addEventListener('click', () => setMenu(false)));
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') setMenu(false); });
 
   /* ---------- Nav shadow once you scroll ---------- */
   const onScroll = () => nav.classList.toggle('scrolled', window.scrollY > 12);
   onScroll();
   window.addEventListener('scroll', onScroll, { passive: true });
-
-  /* ---------- Highlight the current section in the nav ---------- */
-  const links = [...document.querySelectorAll('.nav-links a[href^="#"]')];
-  const sections = links.map((a) => document.querySelector(a.getAttribute('href'))).filter(Boolean);
-  if ('IntersectionObserver' in window) {
-    const spy = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (!entry.isIntersecting) return;
-        links.forEach((a) => a.classList.toggle('active', a.getAttribute('href') === `#${entry.target.id}`));
-      });
-    }, { rootMargin: '-45% 0px -50% 0px' });
-    sections.forEach((s) => spy.observe(s));
-  }
 
   /* ---------- Fade content in as it scrolls into view ---------- */
   const reveals = document.querySelectorAll('.reveal');
@@ -177,6 +286,22 @@
       const rect = card.getBoundingClientRect();
       card.style.setProperty('--mx', `${e.clientX - rect.left}px`);
       card.style.setProperty('--my', `${e.clientY - rect.top}px`);
+    });
+  });
+
+  /* ---------- Publication filters ---------- */
+  const filterButtons = document.querySelectorAll('.filter');
+  filterButtons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const type = btn.dataset.filter;
+      filterButtons.forEach((b) => {
+        const on = b === btn;
+        b.classList.toggle('is-active', on);
+        b.setAttribute('aria-pressed', String(on));
+      });
+      document.querySelectorAll('.pub').forEach((pub) => {
+        pub.hidden = !(type === 'all' || pub.dataset.type === type);
+      });
     });
   });
 

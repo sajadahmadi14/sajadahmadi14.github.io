@@ -1,21 +1,32 @@
-# Personal website (v2: dark, modern design)
+# Personal website
 
 A plain HTML/CSS/JS site with no build step and no frameworks.
 
-- `index.html` holds the content.
+| Page | File |
+| --- | --- |
+| Home (intro + rocket-to-the-Moon mission log) | `index.html` |
+| Research | `research.html` |
+| Publications (with type filters) | `publications.html` |
+| News | `news.html` |
+| Contact | `contact.html` |
+
 - `style.css` holds the colors, fonts and layout. Change the variables at the top to restyle the site.
-- `script.js` runs the animated network background, the light/dark toggle, the mobile menu, the scroll animations and the copy-email button.
+- `script.js` runs the animations (network background, rocket flight, scroll fades), the light/dark toggle, the mobile menu, the publication filters and the copy-email button.
 - `favicon.svg` is the browser-tab icon.
+
+The menu and footer are repeated at the top and bottom of every page. If you add or rename a page, update them in all five files.
 
 ## Editing
 
-Text with a dotted amber underline is placeholder. In `index.html` these elements have `class="todo"`.
+Text with a dotted amber underline is placeholder. These elements have `class="todo"`.
 Replace the text, then remove `class="todo"` from that element.
 
-- **Photo:** save it as `photo.jpg` in this folder and follow the comment next to the `SA` placeholder.
+- **Photo:** save it as `photo.jpg` in this folder and follow the comment next to the `SA` placeholder in `index.html`.
 - **CV:** save it as `cv.pdf` in this folder.
-- **Email:** it appears 3 times in `index.html`. Search for `you@example.com`.
+- **Email:** search all files for `you@example.com`.
 - **Links:** replace each `href="#"` with your Google Scholar, LinkedIn, ORCID and paper links.
+- **Publications:** copy an `<li class="pub">` block per paper and set `data-type` to `journal`, `conference` or `preprint`.
+- **Rocket milestones:** edit the five `<li>` items in the mission log in `index.html`. Each `data-at` value (0 to 0.985) sets how far along the flight that milestone lights up.
 
 ## Preview
 

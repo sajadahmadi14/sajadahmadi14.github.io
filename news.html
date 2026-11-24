@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>News · Sajad Ahmadinabi</title>
+  <meta name="description" content="News and updates from Sajad Ahmadinabi.">
+  <meta name="theme-color" content="#07090d">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="News · Sajad Ahmadinabi">
+  <meta property="og:url" content="https://sajadahmadi14.github.io/news.html">
+  <script>
+    (function () {
+      var root = document.documentElement;
+      root.classList.add('js');
+      try { var t = localStorage.getItem('theme'); if (t) root.dataset.theme = t; } catch (e) {}
+    })();
+  </script>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
+</head>
+<body id="top">
+  <div class="bg-grid" aria-hidden="true"></div>
+
+  <header class="nav-wrap">
+    <nav class="nav" aria-label="Main">
+      <a href="index.html" class="logo" aria-label="Home">
+        <span class="logo-mark">SA</span>
+        <span class="logo-text">Sajad Ahmadinabi</span>
+      </a>
+      <div class="nav-links" id="nav-links">
+        <a href="index.html">Home</a>
+        <a href="research.html">Research</a>
+        <a href="publications.html">Publications</a>
+        <a href="news.html" aria-current="page">News</a>
+        <a href="contact.html">Contact</a>
+      </div>
+      <div class="nav-actions">
+        <button class="icon-btn" id="theme-toggle" type="button" aria-label="Switch between light and dark mode">
+          <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><path d="M12 1.5v2.5M12 20v2.5M4.2 4.2l1.8 1.8M18 18l1.8 1.8M1.5 12H4M20 12h2.5M4.2 19.8 6 18M18 6l1.8-1.8"/></svg>
+          <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+        </button>
+        <a class="btn btn-small" href="cv.pdf">CV</a>
+        <button class="icon-btn menu-btn" id="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="nav-links">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+        </button>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <header class="page-hero">
+      <canvas id="network" aria-hidden="true"></canvas>
+      <div class="hero-glow glow-a" aria-hidden="true"></div>
+      <div class="container">
+        <span class="section-num reveal">03 / News</span>
+        <h1 class="page-title reveal" style="--d:1">Latest <em>news</em></h1>
+        <p class="page-sub reveal" style="--d:2">Talks, papers, awards and other updates.</p>
+      </div>
+    </header>
+
+    <section class="section section-tight" aria-label="News items">
+      <div class="container">
+        <!-- Newest first. Copy an <li> for each update. -->
+        <ol class="timeline">
+          <li class="reveal">
+            <time datetime="2026-11" class="todo">Nov 2026</time>
+            <p class="todo">Your latest news: a paper, a talk, an award or a new position.</p>
+          </li>
+          <li class="reveal">
+            <time datetime="2026-09" class="todo">Sep 2026</time>
+            <p class="todo">Another update, for example a conference where you presented your work.</p>
+          </li>
+          <li class="reveal">
+            <time datetime="2026-06" class="todo">Jun 2026</time>
+            <p class="todo">An award, a grant or a fellowship.</p>
+          </li>
+          <li class="reveal">
+            <time datetime="2026-03" class="todo">Mar 2026</time>
+            <p class="todo">A paper accepted, with a link to it.</p>
+          </li>
+          <li class="reveal">
+            <time datetime="2025-09" class="todo">Sep 2025</time>
+            <p class="todo">An older milestone, like starting your PhD.</p>
+          </li>
+        </ol>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-inner">
+      <span>© 2026 Sajad Ahmadinabi</span>
+      <nav class="footer-links" aria-label="Footer">
+        <a href="research.html">Research</a>
+        <a href="publications.html">Publications</a>
+        <a href="news.html">News</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+      <a href="#top" class="text-link">Back to top
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"/></svg>
+      </a>
+    </div>
+  </footer>
+</body>
+</html>
