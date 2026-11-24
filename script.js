@@ -3,88 +3,182 @@
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const clamp01 = (v) => Math.min(1, Math.max(0, v));
 
-  /* ---------- Animated network behind page headers ---------- */
-  const network = (() => {
-    const canvas = document.getElementById('network');
+  /* ---------- Starfield background on every page ----------
+     You drift slowly through the stars; the mouse adds parallax.
+     Click empty sky = shooting star. Press and hold = warp speed.
+     On the home page this also animates the worlds orbiting the photo. */
+  const space = (() => {
+    const canvas = document.getElementById('space');
     if (!canvas || !canvas.getContext) return null;
 
     const ctx = canvas.getContext('2d');
-    const hero = canvas.parentElement;
-    const LINK = 150;          // max distance for a line between two nodes
-    const MOUSE_LINK = 210;    // max distance for a line to the cursor
-    const mouse = { x: -9999, y: -9999 };
-    let w = 0, h = 0, nodes = [], rgb = '94, 234, 212', raf = null, visible = true;
+    const orbit = document.getElementById('orbit-system');
+    const bodies = orbit ? [...orbit.querySelectorAll('.body')] : [];
+    const TAU = Math.PI * 2;
+    const PHI = (-14 * Math.PI) / 180;            // tilt of the orbit plane
+    const cosP = Math.cos(PHI), sinP = Math.sin(PHI);
+    const TINTS = ['', '94, 234, 212', '165, 180, 252'];
+    // Pressing on these does nothing special (so text stays selectable and links clickable)
+    const NOT_SKY = 'a, button, input, textarea, select, label, p, h1, h2, h3, h4, li, dt, dd, time, pre, code, .card, .pub, .info-card, .contact-card, .filters, .nav, .journey';
 
-    const readColor = () => {
-      rgb = getComputedStyle(root).getPropertyValue('--node').trim() || rgb;
+    let w = 0, h = 0, fov = 1, stars = [], comets = [];
+    let rgb = '255, 255, 255';
+    let warp = 0, warpTarget = 0;
+    let timeScale = 1, hoverOrbit = false, orbitTime = 0, orbitScale = 1;
+    const cam = { x: 0, y: 0, tx: 0, ty: 0 };      // parallax camera offset
+    const tilt = { x: 0, y: 0, tx: 0, ty: 0 };     // orbit-system tilt in degrees
+    let last = performance.now();
+
+    const readColor = () => { rgb = getComputedStyle(root).getPropertyValue('--star').trim() || rgb; };
+
+    const newStar = (z = Math.random()) => ({
+      x: (Math.random() * 2 - 1) * 1.2,
+      y: (Math.random() * 2 - 1) * 1.2,
+      z: Math.max(0.05, z),
+      tw: Math.random() * TAU,
+      tint: Math.random() < 0.1 ? 1 : Math.random() < 0.12 ? 2 : 0,
+    });
+
+    const resize = () => {
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const widthChanged = Math.abs(canvas.clientWidth - w) > 1;
+      w = canvas.clientWidth;
+      h = canvas.clientHeight;
+      fov = Math.max(w, h) * 0.55;
+      canvas.width = Math.round(w * dpr);
+      canvas.height = Math.round(h * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      if (widthChanged || !stars.length) {
+        const count = Math.min(750, Math.round((w * h) / 2200));
+        stars = Array.from({ length: count }, () => newStar());
+      }
+      if (orbit) orbitScale = orbit.clientWidth / 600;
     };
 
-    const seed = () => {
-      const count = Math.min(110, Math.round((w * h) / 13000));
-      nodes = Array.from({ length: count }, () => ({
-        x: Math.random() * w,
-        y: Math.random() * h,
-        vx: (Math.random() - 0.5) * 0.35,
-        vy: (Math.random() - 0.5) * 0.35,
-        r: Math.random() * 1.6 + 0.7,
-      }));
+    const project = (s) => {
+      const k = fov / s.z;
+      return [w / 2 + (s.x - cam.x) * k, h / 2 + (s.y - cam.y) * k];
     };
 
-    const draw = () => {
-      ctx.clearRect(0, 0, w, h);
-      ctx.lineWidth = 1;
-      for (let i = 0; i < nodes.length; i++) {
-        const a = nodes[i];
-        for (let j = i + 1; j < nodes.length; j++) {
-          const b = nodes[j];
-          const dx = a.x - b.x, dy = a.y - b.y;
-          const d2 = dx * dx + dy * dy;
-          if (d2 < LINK * LINK) {
-            ctx.strokeStyle = `rgba(${rgb}, ${(1 - Math.sqrt(d2) / LINK) * 0.32})`;
-            ctx.beginPath();
-            ctx.moveTo(a.x, a.y);
-            ctx.lineTo(b.x, b.y);
-            ctx.stroke();
-          }
-        }
-        const md = Math.hypot(a.x - mouse.x, a.y - mouse.y);
-        if (md < MOUSE_LINK) {
-          ctx.strokeStyle = `rgba(${rgb}, ${(1 - md / MOUSE_LINK) * 0.55})`;
+    const drawStars = (dt, t) => {
+      const speed = 0.035 + warp * 1.5;   // depth units per second
+      const streak = 1 + warp * 7;
+      for (const s of stars) {
+        const [px, py] = project(s);
+        s.z -= speed * dt;
+        if (s.z < 0.04) { Object.assign(s, newStar(1)); continue; }
+        const [sx, sy] = project(s);
+        if (sx < -40 || sx > w + 40 || sy < -40 || sy > h + 40) { Object.assign(s, newStar(1)); continue; }
+
+        const depth = 1 - s.z;
+        const size = 0.5 + depth * 2.1;
+        const alpha = Math.min(1, 0.2 + depth * 1.1) * (0.78 + 0.22 * Math.sin(t * 0.0018 + s.tw));
+        const color = `rgba(${s.tint ? TINTS[s.tint] : rgb}, ${alpha.toFixed(3)})`;
+
+        if (warp > 0.04) {
+          ctx.strokeStyle = color;
+          ctx.lineWidth = size;
           ctx.beginPath();
-          ctx.moveTo(a.x, a.y);
-          ctx.lineTo(mouse.x, mouse.y);
+          ctx.moveTo(sx - (sx - px) * streak, sy - (sy - py) * streak);
+          ctx.lineTo(sx, sy);
           ctx.stroke();
+        } else {
+          ctx.fillStyle = color;
+          ctx.beginPath();
+          ctx.arc(sx, sy, size * 0.6, 0, TAU);
+          ctx.fill();
         }
-        ctx.fillStyle = `rgba(${rgb}, 0.85)`;
+      }
+    };
+
+    const drawComets = (dt) => {
+      comets = comets.filter((c) => (c.life += dt) < c.max);
+      for (const c of comets) {
+        c.x += c.vx * dt;
+        c.y += c.vy * dt;
+        const fade = Math.sin((c.life / c.max) * Math.PI);
+        const tx = c.x - c.vx * 0.16, ty = c.y - c.vy * 0.16;
+        const g = ctx.createLinearGradient(tx, ty, c.x, c.y);
+        g.addColorStop(0, `rgba(${rgb}, 0)`);
+        g.addColorStop(1, `rgba(${rgb}, ${0.95 * fade})`);
+        ctx.strokeStyle = g;
+        ctx.lineWidth = 2;
+        ctx.lineCap = 'round';
         ctx.beginPath();
-        ctx.arc(a.x, a.y, a.r, 0, Math.PI * 2);
+        ctx.moveTo(tx, ty);
+        ctx.lineTo(c.x, c.y);
+        ctx.stroke();
+        ctx.fillStyle = `rgba(${TINTS[1]}, ${0.9 * fade})`;
+        ctx.beginPath();
+        ctx.arc(c.x, c.y, 2.4, 0, TAU);
         ctx.fill();
       }
     };
 
-    const resize = () => {
-      const rect = canvas.getBoundingClientRect();
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      const widthChanged = Math.abs(rect.width - w) > 1;
-      w = rect.width;
-      h = rect.height;
-      canvas.width = Math.round(w * dpr);
-      canvas.height = Math.round(h * dpr);
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      if (widthChanged || !nodes.length) seed();
-      draw();
+    const placeBodies = () => {
+      for (const b of bodies) {
+        const th = TAU * (b._phase + orbitTime / b._period);
+        const ex = b._a * Math.cos(th), ey = b._b * Math.sin(th);
+        const x = (ex * cosP - ey * sinP) * orbitScale;
+        const y = (ex * sinP + ey * cosP) * orbitScale;
+        const front = Math.sin(th);                  // > 0 means in front of the planet
+        const scale = 0.8 + 0.3 * ((front + 1) / 2);
+        b.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0) translate(-50%, -50%) scale(${scale.toFixed(3)})`;
+        b.style.zIndex = front > 0 ? '5' : '1';
+        b.style.opacity = front > 0 ? '1' : (0.5 + 0.5 * (front + 1)).toFixed(3);
+      }
     };
 
-    const step = () => {
-      for (const n of nodes) {
-        n.x += n.vx;
-        n.y += n.vy;
-        if (n.x < 0 || n.x > w) n.vx *= -1;
-        if (n.y < 0 || n.y > h) n.vy *= -1;
+    const frame = (now) => {
+      const dt = Math.min(0.05, (now - last) / 1000);
+      last = now;
+      const ease = (rate) => 1 - Math.exp(-dt * rate);
+
+      warp += (warpTarget - warp) * ease(warpTarget > warp ? 2.2 : 3.5);
+      cam.x += (cam.tx - cam.x) * ease(3);
+      cam.y += (cam.ty - cam.y) * ease(3);
+      tilt.x += (tilt.tx - tilt.x) * ease(4);
+      tilt.y += (tilt.ty - tilt.y) * ease(4);
+      timeScale += ((hoverOrbit ? 0.15 : 1) * (1 + warp * 5) - timeScale) * ease(4);
+      orbitTime += dt * timeScale;
+
+      ctx.clearRect(0, 0, w, h);
+      drawStars(dt, now);
+      drawComets(dt);
+
+      if (orbit) {
+        orbit.style.transform = `perspective(1100px) rotateX(${tilt.x.toFixed(2)}deg) rotateY(${tilt.y.toFixed(2)}deg)`;
+        placeBodies();
       }
-      draw();
-      raf = visible ? requestAnimationFrame(step) : null;
+      if (!reduceMotion) requestAnimationFrame(frame);
     };
+
+    // Orbit rings: dashed full ellipse behind the planet, solid front half over it
+    if (orbit) {
+      const SVG_NS = 'http://www.w3.org/2000/svg';
+      const back = document.getElementById('rings-back');
+      const frontG = document.getElementById('rings-front');
+      const deg = (PHI * 180) / Math.PI;
+      for (const b of bodies) {
+        b._a = parseFloat(b.dataset.a) || 200;
+        b._b = parseFloat(b.dataset.b) || 60;
+        b._period = parseFloat(b.dataset.period) || 15;
+        b._phase = parseFloat(b.dataset.phase) || 0;
+        const e = document.createElementNS(SVG_NS, 'ellipse');
+        e.setAttribute('rx', b._a);
+        e.setAttribute('ry', b._b);
+        e.setAttribute('transform', `rotate(${deg})`);
+        e.setAttribute('class', 'ring-back');
+        back.appendChild(e);
+        const p = document.createElementNS(SVG_NS, 'path');
+        p.setAttribute('d', `M ${b._a} 0 A ${b._a} ${b._b} 0 0 1 ${-b._a} 0`);
+        p.setAttribute('transform', `rotate(${deg})`);
+        p.setAttribute('class', 'ring-front');
+        frontG.appendChild(p);
+      }
+      orbit.addEventListener('pointerenter', () => { hoverOrbit = true; });
+      orbit.addEventListener('pointerleave', () => { hoverOrbit = false; });
+    }
 
     readColor();
     resize();
@@ -92,29 +186,56 @@
     let resizeTimer;
     window.addEventListener('resize', () => {
       clearTimeout(resizeTimer);
-      resizeTimer = setTimeout(resize, 120);
+      resizeTimer = setTimeout(() => { resize(); if (reduceMotion) frame(performance.now()); }, 120);
     });
 
-    hero.addEventListener('pointermove', (e) => {
-      const rect = canvas.getBoundingClientRect();
-      mouse.x = e.clientX - rect.left;
-      mouse.y = e.clientY - rect.top;
-      if (reduceMotion) draw();
-    });
-    hero.addEventListener('pointerleave', () => {
-      mouse.x = mouse.y = -9999;
-      if (reduceMotion) draw();
-    });
-
-    if (!reduceMotion) {
-      // Only animate while the header is on screen
-      new IntersectionObserver(([entry]) => {
-        visible = entry.isIntersecting;
-        if (visible && !raf) raf = requestAnimationFrame(step);
-      }).observe(hero);
+    if (reduceMotion) {
+      // Still picture: stars and orbits drawn once, no motion
+      frame(performance.now());
+      return { refreshColor() { readColor(); frame(performance.now()); } };
     }
 
-    return { refreshColor() { readColor(); draw(); } };
+    // Mouse: gentle parallax for the stars and a 3D tilt for the orbit system
+    window.addEventListener('pointermove', (e) => {
+      const mx = e.clientX / window.innerWidth - 0.5;
+      const my = e.clientY / window.innerHeight - 0.5;
+      cam.tx = mx * 0.12;
+      cam.ty = my * 0.12;
+      tilt.tx = -my * 14;
+      tilt.ty = mx * 18;
+    });
+    root.addEventListener('pointerleave', () => { cam.tx = cam.ty = tilt.tx = tilt.ty = 0; });
+
+    // Click empty sky = shooting star, press and hold = warp speed
+    let pressAt = 0, holdTimer = null;
+    const endPress = () => {
+      pressAt = 0;
+      clearTimeout(holdTimer);
+      warpTarget = 0;
+      root.classList.remove('warping');
+    };
+    document.addEventListener('pointerdown', (e) => {
+      if (e.button > 0 || e.target.closest(NOT_SKY)) return;
+      if (e.pointerType === 'mouse') e.preventDefault();   // no text selection while holding
+      pressAt = performance.now();
+      holdTimer = setTimeout(() => { warpTarget = 1; root.classList.add('warping'); }, 180);
+    });
+    document.addEventListener('pointerup', (e) => {
+      if (!pressAt) return;
+      const quick = performance.now() - pressAt < 180;
+      endPress();
+      if (quick) {
+        const dir = Math.random() < 0.5 ? 1 : -1;
+        const angle = (12 + Math.random() * 22) * (Math.PI / 180);
+        const v = 900 + Math.random() * 400;
+        comets.push({ x: e.clientX, y: e.clientY, vx: Math.cos(angle) * v * dir, vy: Math.sin(angle) * v, life: 0, max: 0.9 });
+      }
+    });
+    document.addEventListener('pointercancel', endPress);
+    window.addEventListener('blur', endPress);
+
+    requestAnimationFrame(frame);
+    return { refreshColor: readColor };
   })();
 
   /* ---------- Rocket journey: scroll moves the rocket from Earth to the Moon ---------- */
@@ -246,7 +367,7 @@
     try { localStorage.setItem('theme', next); } catch (e) { /* private mode */ }
     document.querySelector('meta[name="theme-color"]')
       ?.setAttribute('content', next === 'light' ? '#f6f7f9' : '#07090d');
-    network?.refreshColor();
+    space?.refreshColor();
   });
 
   /* ---------- Mobile menu ---------- */

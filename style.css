@@ -16,6 +16,7 @@
   --accent-2: #818cf8;
   --on-accent: #04121a;
   --node: 94, 234, 212;         /* network + highlights, as r, g, b */
+  --star: 255, 255, 255;        /* starfield on the home page */
   --glow-a: rgba(94, 234, 212, 0.14);
   --glow-b: rgba(129, 140, 248, 0.14);
   --nav-bg: rgba(10, 13, 18, 0.62);
@@ -37,6 +38,7 @@
   --accent-2: #4f46e5;
   --on-accent: #ffffff;
   --node: 13, 148, 136;
+  --star: 30, 41, 59;
   --glow-a: rgba(13, 148, 136, 0.12);
   --glow-b: rgba(79, 70, 229, 0.10);
   --nav-bg: rgba(246, 247, 249, 0.72);
@@ -122,6 +124,22 @@ svg:not(.art) {
   background-clip: text;
   color: transparent;
 }
+
+/* Starfield behind every page (drawn by script.js) */
+.space-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* Warp speed: content eases back a little while the stars streak */
+.hero-inner,
+.page-hero .container { transition: transform 0.7s var(--ease); }
+.warping .hero-inner,
+.warping .page-hero .container { transform: scale(0.975); }
 
 /* Subtle grid behind the top of the page */
 .bg-grid {
@@ -292,16 +310,6 @@ svg:not(.art) {
   overflow: hidden;
 }
 
-#network {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  opacity: 0.6;
-  -webkit-mask-image: radial-gradient(ellipse 70% 70% at 72% 42%, #000 10%, transparent 72%);
-  mask-image: radial-gradient(ellipse 70% 70% at 72% 42%, #000 10%, transparent 72%);
-}
-
 .hero-glow {
   position: absolute;
   border-radius: 50%;
@@ -416,81 +424,186 @@ h1 {
 .socials a:hover { color: var(--text); }
 .socials a:hover svg { transform: translate(2px, -2px); opacity: 1; }
 
-/* Photo */
-.hero-photo {
-  position: relative;
-  justify-self: end;
-  width: min(100%, 400px);
+/* ---------- Space hero: orbiting planet (the starfield is .space-bg) ---------- */
+
+.hero-space .hero-inner {
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: 40px;
 }
 
-.photo-frame {
-  position: relative;
-  aspect-ratio: 4 / 5;
-  padding: 1px;
-  border-radius: 30px;
-  background: linear-gradient(160deg, rgba(var(--node), 0.9), transparent 38%, transparent 62%, var(--accent-2));
-  box-shadow: var(--shadow);
+.orbit-wrap {
+  justify-self: start;
+  width: min(116%, 590px);
 }
-.photo-frame > * {
-  display: block;
+
+.orbit-system {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 600 / 380;
+  will-change: transform;
+}
+
+.orbit-rings {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
-  border-radius: 29px;
-  object-fit: cover;
+  overflow: visible;
+  pointer-events: none;
+}
+.orbit-back { z-index: 2; }
+.orbit-front { z-index: 4; }
+.ring-back {
+  fill: none;
+  stroke: rgba(var(--node), 0.18);
+  stroke-width: 1;
+  stroke-dasharray: 3 6;
+  vector-effect: non-scaling-stroke;
+}
+.ring-front {
+  fill: none;
+  stroke: rgba(var(--node), 0.5);
+  stroke-width: 1.2;
+  vector-effect: non-scaling-stroke;
 }
 
-.photo-placeholder {
+.planet {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 3;
+  width: 44%;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  padding: 2px;
+  background: linear-gradient(150deg, rgba(var(--node), 0.95), transparent 45%, transparent 60%, var(--accent-2));
+  box-shadow:
+    0 0 60px -6px rgba(var(--node), 0.45),
+    0 0 140px -20px var(--glow-b);
+}
+.planet::before {
+  /* atmosphere halo */
+  content: "";
+  position: absolute;
+  inset: -14px;
+  border-radius: 50%;
+  border: 1px solid rgba(var(--node), 0.22);
+  animation: breathe 5s ease-in-out infinite;
+}
+@keyframes breathe {
+  0%, 100% { transform: scale(1); opacity: 0.6; }
+  50% { transform: scale(1.04); opacity: 1; }
+}
+
+.planet-face {
   position: relative;
   display: grid;
   place-items: center;
+  width: 100%;
+  height: 100%;
   overflow: hidden;
+  border-radius: 50%;
+  object-fit: cover;
   background:
-    radial-gradient(circle at 28% 18%, rgba(var(--node), 0.22), transparent 55%),
-    radial-gradient(circle at 80% 90%, var(--glow-b), transparent 55%),
-    var(--bg-2);
+    radial-gradient(circle at 30% 26%, rgba(var(--node), 0.35), transparent 50%),
+    radial-gradient(circle at 75% 80%, rgba(129, 140, 248, 0.35), transparent 55%),
+    repeating-linear-gradient(-18deg, transparent 0 18px, rgba(255, 255, 255, 0.025) 18px 30px),
+    #0b1424;
+  box-shadow: inset -28px -26px 60px rgba(0, 0, 0, 0.55);
 }
 .initials {
   font-family: var(--serif);
-  font-size: clamp(5rem, 10vw, 8rem);
+  font-size: clamp(3.4rem, 7vw, 5.6rem);
   line-height: 1;
-  color: var(--text);
-  opacity: 0.9;
-}
-.photo-hint {
-  position: absolute;
-  bottom: 18px;
-  font: 12px/1 var(--mono);
-  color: var(--faint);
+  color: #eef1f5;
 }
 
-.photo-badge {
+/* Orbiting worlds (positioned by script.js) */
+.body {
   position: absolute;
-  left: -36px;
-  bottom: 44px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  max-width: 240px;
-  padding: 14px 18px;
-  border-radius: 16px;
-  border: 1px solid var(--border-strong);
-  background: var(--nav-bg);
-  -webkit-backdrop-filter: blur(14px);
-  backdrop-filter: blur(14px);
+  left: 50%;
+  top: 50%;
+  z-index: 5;
+  display: block;
+  will-change: transform, opacity;
+  border-radius: 50%;
+}
+.body-dot {
+  display: block;
+  width: var(--size, 22px);
+  height: var(--size, 22px);
+  border-radius: 50%;
+}
+.body-a { --size: 28px; }
+.body-a .body-dot {
+  background: radial-gradient(circle at 32% 30%, #ccfbf1, #14b8a6 55%, #0f3d3a);
+  box-shadow: 0 0 24px rgba(94, 234, 212, 0.5);
+}
+.body-b { --size: 20px; }
+.body-b .body-dot {
+  position: relative;
+  background: radial-gradient(circle at 32% 30%, #e0e7ff, #6366f1 55%, #1e1b4b);
+  box-shadow: 0 0 20px rgba(129, 140, 248, 0.5);
+}
+.body-b .body-dot::after {
+  /* little ring, Saturn-style */
+  content: "";
+  position: absolute;
+  left: -9px;
+  right: -9px;
+  top: 50%;
+  height: 7px;
+  margin-top: -3.5px;
+  border: 1.5px solid rgba(199, 210, 254, 0.75);
+  border-radius: 50%;
+  transform: rotate(-22deg);
+}
+.body-sat { border-radius: 6px; }
+.body-sat .sat {
+  display: block;
+  filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.45));
+  animation: spin 14s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.body-label {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 12px);
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(var(--node), 0.4);
+  background: var(--bg-2);
   box-shadow: var(--shadow);
-  animation: float 6s ease-in-out infinite;
+  color: var(--text);
+  font: 500 12.5px/1.2 var(--mono);
+  white-space: nowrap;
+  opacity: 0;
+  transform: translate(-50%, 4px);
+  pointer-events: none;
+  transition: opacity 0.25s var(--ease), transform 0.25s var(--ease);
 }
-.badge-label {
-  font: 500 11px/1 var(--mono);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--accent-1);
+.body:hover .body-label,
+.body:focus-visible .body-label { opacity: 1; transform: translate(-50%, 0); }
+.body:hover,
+.body:focus-visible {
+  /* beat the inline depth styles from script.js */
+  opacity: 1 !important;
+  z-index: 6 !important;
 }
-.badge-value { font-size: 14.5px; font-weight: 500; line-height: 1.4; }
 
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
+.space-hint {
+  margin: 14px 0 0;
+  text-align: center;
+  color: var(--faint);
+  font: 500 12px/1.4 var(--mono);
+}
+.hint-touch { display: none; }
+@media (hover: none) {
+  .hint-touch { display: inline; }
+  .hint-mouse { display: none; }
+  .body-label { opacity: 0.9; transform: translate(-50%, 0); }
 }
 
 /* Scroll cue */
@@ -523,12 +636,10 @@ h1 {
 .page-hero {
   position: relative;
   overflow: hidden;
+  overflow: clip visible;   /* clip sideways only, so the glow fades out instead of ending in a hard edge */
   padding: 190px 0 72px;
 }
-.page-hero #network {
-  -webkit-mask-image: radial-gradient(ellipse 60% 80% at 80% 30%, #000 10%, transparent 70%);
-  mask-image: radial-gradient(ellipse 60% 80% at 80% 30%, #000 10%, transparent 70%);
-}
+.page-hero .hero-glow { z-index: -1; }
 .page-hero .container { position: relative; }
 
 .page-title {
@@ -843,6 +954,15 @@ h2 em {
   border-top: 1px solid var(--border);
 }
 .footer-links { display: flex; flex-wrap: wrap; gap: 8px 22px; }
+.sky-hint {
+  margin: 22px auto 0;
+  color: var(--faint);
+  font: 500 12px/1.5 var(--mono);
+  opacity: 0.8;
+}
+@media (prefers-reduced-motion: reduce) {
+  .sky-hint { display: none; }
+}
 .footer-links a { transition: color 0.2s; }
 .footer-links a:hover { color: var(--text); }
 
@@ -1064,7 +1184,8 @@ h2 em {
   html { scroll-behavior: auto; }
   .js .reveal { opacity: 1; transform: none; transition: none; }
   .pulse::after,
-  .photo-badge,
+  .planet::before,
+  .body-sat .sat,
   .scroll-cue span,
   .shooting-star,
   #flame,
@@ -1076,8 +1197,9 @@ h2 em {
    ========================================================= */
 @media (max-width: 980px) {
   .hero { padding-top: 140px; }
-  .hero-inner { grid-template-columns: 1fr; gap: 64px; }
-  .hero-photo { justify-self: start; width: min(100%, 360px); margin-left: 36px; }
+  .hero-inner,
+  .hero-space .hero-inner { grid-template-columns: 1fr; gap: 56px; }
+  .orbit-wrap { justify-self: center; width: min(100%, 520px); }
   .cards { grid-template-columns: 1fr 1fr; }
   .explore { grid-template-columns: 1fr 1fr; }
   .contact-grid { grid-template-columns: 1fr 1fr; }
@@ -1119,8 +1241,10 @@ h2 em {
   .nav-links a { padding: 12px 14px; font-size: 16px; }
 
   .hero { padding: 128px 0 80px; }
-  .hero-photo { width: min(100%, 300px); margin-left: 24px; }
-  .photo-badge { left: -24px; bottom: 28px; }
+  .orbit-wrap { width: 100%; }
+  .body-a { --size: 22px; }
+  .body-b { --size: 16px; }
+  .body-sat .sat { width: 30px; height: 18px; }
 
   .page-hero { padding: 150px 0 48px; }
 

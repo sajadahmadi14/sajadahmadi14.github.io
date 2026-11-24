@@ -20,11 +20,12 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=3">
-  <script src="script.js?v=3" defer></script>
+  <link rel="stylesheet" href="style.css?v=5">
+  <script src="script.js?v=5" defer></script>
 </head>
 <body id="top">
   <div class="bg-grid" aria-hidden="true"></div>
+  <canvas id="space" class="space-bg" aria-hidden="true"></canvas>
 
   <header class="nav-wrap">
     <nav class="nav" aria-label="Main">
@@ -54,7 +55,6 @@
 
   <main>
     <header class="page-hero">
-      <canvas id="network" aria-hidden="true"></canvas>
       <div class="hero-glow glow-a" aria-hidden="true"></div>
       <div class="container">
         <span class="section-num reveal">04 / Contact</span>
@@ -119,6 +119,7 @@
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"/></svg>
       </a>
     </div>
+    <p class="container sky-hint">✦ Click empty sky for a shooting star · press and hold for warp speed</p>
   </footer>
 </body>
 </html>
