@@ -37,3 +37,6 @@ Open `index.html` in any browser.
 This folder is the GitHub repository `sajadahmadi14/sajadahmadi14.github.io`.
 GitHub Pages serves the `main` branch, so any change you push goes live at
 https://sajadahmadi14.github.io within a minute or two.
+
+When you change `style.css` or `script.js`, bump the `?v=3` number on the `<link>` and `<script>` tags in every page
+(for example to `?v=4`). Otherwise browsers may keep showing the old files for up to 10 minutes.
