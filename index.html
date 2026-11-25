@@ -21,8 +21,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=5">
-  <script src="script.js?v=5" defer></script>
+  <link rel="stylesheet" href="style.css?v=6">
+  <script src="script.js?v=6" defer></script>
 </head>
 <body id="top">
   <!--
@@ -107,16 +107,92 @@
           </ul>
         </div>
 
-        <!-- Your photo is the planet; the three small worlds orbiting it link to the Research page.
+        <!-- You are the astronaut: scrolling down lifts the gold visor to show your face.
+             The three small worlds orbiting you link to the Research page.
              data-a / data-b = orbit width / height, data-period = seconds per orbit, data-phase = start position (0-1). -->
         <div class="orbit-wrap reveal" style="--d:2">
           <div class="orbit-system" id="orbit-system">
             <svg class="art orbit-rings orbit-back" viewBox="-300 -190 600 380" aria-hidden="true"><g id="rings-back"></g></svg>
 
-            <div class="planet">
-              <!-- To add your photo: save it as photo.jpg in this folder, then replace the div below with:
-                   <img class="planet-face" src="photo.jpg" alt="Sajad Ahmadinabi"> -->
-              <div class="planet-face"><span class="initials">SA</span></div>
+            <div class="astronaut" role="img" aria-label="Sajad Ahmadinabi as an astronaut">
+              <svg class="art" viewBox="0 0 320 372" aria-hidden="true">
+                <defs>
+                  <radialGradient id="astro-shell" cx="36%" cy="26%" r="80%">
+                    <stop offset="0" stop-color="#ffffff"/>
+                    <stop offset="0.55" stop-color="#e2e8f0"/>
+                    <stop offset="1" stop-color="#8b9ab0"/>
+                  </radialGradient>
+                  <linearGradient id="astro-suit" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0" stop-color="#f8fafc"/>
+                    <stop offset="1" stop-color="#a3b1c4"/>
+                  </linearGradient>
+                  <linearGradient id="astro-visor" x1="0.15" y1="0" x2="0.85" y2="1">
+                    <stop offset="0" stop-color="#fde68a"/>
+                    <stop offset="0.35" stop-color="#f59e0b"/>
+                    <stop offset="0.7" stop-color="#b45309"/>
+                    <stop offset="1" stop-color="#451a03"/>
+                  </linearGradient>
+                  <radialGradient id="astro-glass" cx="35%" cy="25%" r="75%">
+                    <stop offset="0" stop-color="#ffffff" stop-opacity="0.22"/>
+                    <stop offset="0.5" stop-color="#ffffff" stop-opacity="0"/>
+                    <stop offset="1" stop-color="#5eead4" stop-opacity="0.12"/>
+                  </radialGradient>
+                  <clipPath id="astro-window"><circle cx="160" cy="145" r="86"/></clipPath>
+                  <clipPath id="astro-helmet"><circle cx="160" cy="140" r="116"/></clipPath>
+                </defs>
+
+                <!-- Backpack and suit -->
+                <rect x="52" y="200" width="216" height="172" rx="46" fill="#94a3b8"/>
+                <path d="M 34 372 C 34 292 82 250 160 250 C 238 250 286 292 286 372 Z" fill="url(#astro-suit)"/>
+                <path d="M 98 300 C 104 330 104 350 100 372 M 222 300 C 216 330 216 350 220 372" stroke="#cbd5e1" stroke-width="3" fill="none" stroke-linecap="round"/>
+                <circle cx="80" cy="306" r="14" fill="#0b1424" stroke="#5eead4" stroke-width="2"/>
+                <path d="M80 297.5l2.4 5 5.4.6-4 3.7 1.1 5.3-4.9-2.8-4.9 2.8 1.1-5.3-4-3.7 5.4-.6z" fill="#5eead4"/>
+                <rect x="126" y="292" width="68" height="44" rx="9" fill="#e2e8f0" stroke="#94a3b8" stroke-width="2"/>
+                <rect x="136" y="301" width="26" height="12" rx="3" fill="#0f766e"/>
+                <circle cx="176" cy="307" r="4" fill="#ef4444"/>
+                <circle cx="140" cy="325" r="3.5" fill="#22c55e"/>
+                <circle cx="152" cy="325" r="3.5" fill="#38bdf8"/>
+                <rect x="164" y="321" width="20" height="8" rx="2" fill="#94a3b8"/>
+                <ellipse cx="160" cy="252" rx="80" ry="20" fill="#7c8ca3"/>
+                <ellipse cx="160" cy="248" rx="70" ry="14" fill="#475569"/>
+
+                <!-- Helmet lamps and shell -->
+                <rect x="30" y="118" width="16" height="40" rx="6" fill="#cbd5e1" stroke="#94a3b8" stroke-width="1.5"/>
+                <circle cx="38" cy="130" r="4" fill="#fef3c7"/>
+                <rect x="274" y="118" width="16" height="40" rx="6" fill="#cbd5e1" stroke="#94a3b8" stroke-width="1.5"/>
+                <circle cx="282" cy="130" r="4" fill="#fef3c7"/>
+                <circle cx="160" cy="140" r="116" fill="url(#astro-shell)"/>
+                <circle cx="160" cy="145" r="92" fill="#334155"/>
+
+                <!-- Inside the helmet: your face -->
+                <g clip-path="url(#astro-window)">
+                  <rect x="70" y="55" width="180" height="180" fill="#0b1220"/>
+                  <g class="astro-placeholder">
+                    <circle cx="160" cy="132" r="34" fill="#334155"/>
+                    <path d="M 96 236 C 100 192 128 176 160 176 C 192 176 220 192 224 236 Z" fill="#334155"/>
+                    <text x="160" y="214" text-anchor="middle" class="astro-ph-text">your photo</text>
+                  </g>
+                  <!-- YOUR PHOTO: save a square headshot as photo.jpg in this folder, then delete the two comment marks around the next line. -->
+                  <!-- <image href="photo.jpg" x="74" y="59" width="172" height="172" preserveAspectRatio="xMidYMid slice"/> -->
+                  <circle cx="160" cy="145" r="86" fill="url(#astro-glass)"/>
+                </g>
+
+                <!-- Gold visor: script.js slides it up as you scroll -->
+                <g clip-path="url(#astro-helmet)">
+                  <g id="visor">
+                    <circle cx="160" cy="145" r="90" fill="url(#astro-visor)"/>
+                    <path d="M 96 110 C 108 82 134 66 164 64" stroke="#ffffff" stroke-opacity="0.75" stroke-width="7" fill="none" stroke-linecap="round"/>
+                    <path d="M 92 134 C 92.5 128 93.5 123 95.5 118" stroke="#ffffff" stroke-opacity="0.6" stroke-width="5" fill="none" stroke-linecap="round"/>
+                    <path d="M 92 202 C 130 178 196 178 232 198" stroke="#5eead4" stroke-opacity="0.55" stroke-width="3" fill="none"/>
+                    <circle cx="205" cy="98" r="1.8" fill="#ffffff"/>
+                    <circle cx="221" cy="121" r="1.2" fill="#ffffff"/>
+                    <circle cx="190" cy="82" r="1" fill="#ffffff"/>
+                    <circle cx="160" cy="145" r="90" fill="none" stroke="#78350f" stroke-opacity="0.5" stroke-width="2"/>
+                  </g>
+                </g>
+                <path d="M 70 70 C 92 44 126 30 160 28" stroke="#ffffff" stroke-opacity="0.9" stroke-width="6" fill="none" stroke-linecap="round"/>
+              </svg>
+              <span class="astro-hello">Hi, I'm Sajad</span>
             </div>
 
             <svg class="art orbit-rings orbit-front" viewBox="-300 -190 600 380" aria-hidden="true"><g id="rings-front"></g></svg>
@@ -142,6 +218,7 @@
             </a>
           </div>
           <p class="space-hint">
+            <span class="hint-visor">↓ Scroll to lift the visor</span><br>
             <span class="hint-mouse">Click for a shooting star · hold for warp speed</span>
             <span class="hint-touch">Tap for a shooting star · hold for warp speed</span>
           </p>

@@ -467,57 +467,70 @@ h1 {
   vector-effect: non-scaling-stroke;
 }
 
-.planet {
+
+/* Astronaut (you): floats at the centre of the orbits */
+.astronaut {
   position: absolute;
   left: 50%;
   top: 50%;
   z-index: 3;
-  width: 44%;
-  aspect-ratio: 1;
-  transform: translate(-50%, -50%);
-  border-radius: 50%;
-  padding: 2px;
-  background: linear-gradient(150deg, rgba(var(--node), 0.95), transparent 45%, transparent 60%, var(--accent-2));
-  box-shadow:
-    0 0 60px -6px rgba(var(--node), 0.45),
-    0 0 140px -20px var(--glow-b);
+  width: 54%;
+  transform: translate(-50%, -38%);   /* helmet centre sits on the orbit centre */
 }
-.planet::before {
-  /* atmosphere halo */
+.astronaut::before {
+  /* soft glow behind the helmet */
   content: "";
   position: absolute;
-  inset: -14px;
+  left: 50%;
+  top: 38%;
+  z-index: -1;
+  width: 95%;
+  aspect-ratio: 1;
   border-radius: 50%;
-  border: 1px solid rgba(var(--node), 0.22);
-  animation: breathe 5s ease-in-out infinite;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(var(--node), 0.3), transparent 65%);
 }
-@keyframes breathe {
-  0%, 100% { transform: scale(1); opacity: 0.6; }
-  50% { transform: scale(1.04); opacity: 1; }
+.astronaut > svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+  transform-origin: 50% 38%;
+  animation: drift 8s ease-in-out infinite;
+  -webkit-mask-image: linear-gradient(#000 80%, transparent 99%);
+  mask-image: linear-gradient(#000 80%, transparent 99%);
+}
+@keyframes drift {
+  0%, 100% { transform: translateY(0) rotate(-2.5deg); }
+  50% { transform: translateY(-8px) rotate(2.5deg); }
+}
+.astro-ph-text {
+  font: 500 11px var(--mono);
+  fill: #7c8796;
 }
 
-.planet-face {
-  position: relative;
-  display: grid;
-  place-items: center;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  border-radius: 50%;
-  object-fit: cover;
-  background:
-    radial-gradient(circle at 30% 26%, rgba(var(--node), 0.35), transparent 50%),
-    radial-gradient(circle at 75% 80%, rgba(129, 140, 248, 0.35), transparent 55%),
-    repeating-linear-gradient(-18deg, transparent 0 18px, rgba(255, 255, 255, 0.025) 18px 30px),
-    #0b1424;
-  box-shadow: inset -28px -26px 60px rgba(0, 0, 0, 0.55);
+/* Speech bubble once the visor is fully up */
+.astro-hello {
+  position: absolute;
+  top: 2%;
+  right: -10%;
+  padding: 8px 13px;
+  border-radius: 14px 14px 14px 4px;
+  border: 1px solid rgba(var(--node), 0.45);
+  background: var(--bg-2);
+  box-shadow: var(--shadow);
+  color: var(--text);
+  font: 600 13.5px/1 var(--sans);
+  white-space: nowrap;
+  opacity: 0;
+  transform: scale(0.2);
+  transform-origin: 0% 100%;
+  transition: transform 0.45s cubic-bezier(0.3, 1.6, 0.5, 1), opacity 0.25s;
+  pointer-events: none;
 }
-.initials {
-  font-family: var(--serif);
-  font-size: clamp(3.4rem, 7vw, 5.6rem);
-  line-height: 1;
-  color: #eef1f5;
-}
+.orbit-wrap.revealed .astro-hello { opacity: 1; transform: scale(1); }
+.hint-visor { transition: opacity 0.4s; }
+.orbit-wrap.revealed .hint-visor { opacity: 0; }
 
 /* Orbiting worlds (positioned by script.js) */
 .body {
@@ -594,7 +607,7 @@ h1 {
 }
 
 .space-hint {
-  margin: 14px 0 0;
+  margin: 13% 0 0;      /* room for the astronaut's suit below the orbits */
   text-align: center;
   color: var(--faint);
   font: 500 12px/1.4 var(--mono);
@@ -603,7 +616,6 @@ h1 {
 @media (hover: none) {
   .hint-touch { display: inline; }
   .hint-mouse { display: none; }
-  .body-label { opacity: 0.9; transform: translate(-50%, 0); }
 }
 
 /* Scroll cue */
@@ -1184,7 +1196,7 @@ h2 em {
   html { scroll-behavior: auto; }
   .js .reveal { opacity: 1; transform: none; transition: none; }
   .pulse::after,
-  .planet::before,
+  .astronaut > svg,
   .body-sat .sat,
   .scroll-cue span,
   .shooting-star,

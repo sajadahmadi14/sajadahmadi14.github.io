@@ -21,7 +21,7 @@ The menu and footer are repeated at the top and bottom of every page. If you add
 Text with a dotted amber underline is placeholder. These elements have `class="todo"`.
 Replace the text, then remove `class="todo"` from that element.
 
-- **Photo:** save it as `photo.jpg` in this folder and follow the comment next to the `SA` placeholder in `index.html`.
+- **Photo (the astronaut's face):** save a square headshot as `photo.jpg` in this folder, then in `index.html` find the `<image href="photo.jpg"` line inside the astronaut and delete the `<!--` and `-->` around it. The face appears when visitors scroll and the gold visor lifts.
 - **CV:** save it as `cv.pdf` in this folder.
 - **Email:** search all files for `you@example.com`.
 - **Links:** replace each `href="#"` with your Google Scholar, LinkedIn, ORCID and paper links.
@@ -38,5 +38,5 @@ This folder is the GitHub repository `sajadahmadi14/sajadahmadi14.github.io`.
 GitHub Pages serves the `main` branch, so any change you push goes live at
 https://sajadahmadi14.github.io within a minute or two.
 
-When you change `style.css` or `script.js`, bump the `?v=5` number on the `<link>` and `<script>` tags in every page
-(for example to `?v=6`). Otherwise browsers may keep showing the old files for up to 10 minutes.
+When you change `style.css` or `script.js`, bump the `?v=6` number on the `<link>` and `<script>` tags in every page
+(for example to `?v=7`). Otherwise browsers may keep showing the old files for up to 10 minutes.

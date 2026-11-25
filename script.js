@@ -238,6 +238,42 @@
     return { refreshColor: readColor };
   })();
 
+  /* ---------- Astronaut: the gold visor lifts as you scroll, revealing the face ---------- */
+  (() => {
+    const astro = document.querySelector('.astronaut');
+    const visor = document.getElementById('visor');
+    if (!astro || !visor) return;
+
+    const wrap = astro.closest('.orbit-wrap');
+    const RAISE = 150;        // how far the visor slides up (in drawing units)
+    const DISTANCE = 170;     // pixels of scrolling from closed to fully open
+
+    let ticking = false;
+    const update = () => {
+      ticking = false;
+      // Helmet centre measured from the top of the page (re-measured each time, so fonts and resizing can't throw it off)
+      const r = astro.getBoundingClientRect();
+      const helmetY = r.top + window.scrollY + r.height * 0.38;
+      // Start opening from wherever the helmet first sits on screen (or once it scrolls into view)
+      const start = Math.min(helmetY, window.innerHeight * 0.72);
+      const p = clamp01((start - (helmetY - window.scrollY)) / DISTANCE);
+      const eased = p * p * (3 - 2 * p);
+      visor.setAttribute('transform', `translate(0 ${(-RAISE * eased).toFixed(1)})`);
+      wrap?.classList.toggle('revealed', p > 0.97);
+    };
+    const requestUpdate = () => {
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(update);
+      }
+    };
+
+    update();
+    window.addEventListener('scroll', requestUpdate, { passive: true });
+    window.addEventListener('resize', requestUpdate);
+    window.addEventListener('load', requestUpdate);
+  })();
+
   /* ---------- Rocket journey: scroll moves the rocket from Earth to the Moon ---------- */
   (() => {
     const section = document.querySelector('.journey');
