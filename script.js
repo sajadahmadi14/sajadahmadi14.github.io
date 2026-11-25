@@ -17,7 +17,7 @@
     const TAU = Math.PI * 2;
     const PHI = (-14 * Math.PI) / 180;            // tilt of the orbit plane
     const cosP = Math.cos(PHI), sinP = Math.sin(PHI);
-    const TINTS = ['', '94, 234, 212', '165, 180, 252'];
+    const TINTS = ['', '103, 232, 249', '196, 181, 253', '244, 114, 182'];
     // Pressing on these does nothing special (so text stays selectable and links clickable)
     const NOT_SKY = 'a, button, input, textarea, select, label, p, h1, h2, h3, h4, li, dt, dd, time, pre, code, .card, .pub, .info-card, .contact-card, .filters, .nav, .journey';
 
@@ -36,7 +36,7 @@
       y: (Math.random() * 2 - 1) * 1.2,
       z: Math.max(0.05, z),
       tw: Math.random() * TAU,
-      tint: Math.random() < 0.1 ? 1 : Math.random() < 0.12 ? 2 : 0,
+      tint: Math.random() < 0.1 ? 1 : Math.random() < 0.12 ? 2 : Math.random() < 0.06 ? 3 : 0,
     });
 
     const resize = () => {
@@ -402,7 +402,7 @@
     root.dataset.theme = next;
     try { localStorage.setItem('theme', next); } catch (e) { /* private mode */ }
     document.querySelector('meta[name="theme-color"]')
-      ?.setAttribute('content', next === 'light' ? '#f6f7f9' : '#07090d');
+      ?.setAttribute('content', next === 'light' ? '#f5f6fb' : '#05060f');
     space?.refreshColor();
   });
 
